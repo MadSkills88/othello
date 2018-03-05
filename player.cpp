@@ -1,3 +1,8 @@
+/*
+ * Team Name: freefood
+ * Team members: Anthony Bao, Sam Owen
+ */
+
 #include "player.hpp"
 
 /*
