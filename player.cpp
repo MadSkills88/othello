@@ -59,23 +59,22 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
-    Move *best = getBestMove();
-    std::cerr << best->getX() << ", " << best->getY() << std::endl;
+    Move *best = getBestMoveHeuristic();
+    // std::cerr << best->getX() << ", " << best->getY() << std::endl;
     board->doMove(best, myside);
-    std::cerr << "hi" << std::endl;
     return best;
 
 }
 
-Move *Player::getBestMove()   {
+Move *Player::getBestMoveHeuristic()   {
     Move *best;
     int score = -65*3;
     int move_index;
     std::vector<Move> moves = getMoves();
-    std::cerr << "number of potential moves: " << moves.size() << std::endl;
+    // std::cerr << "number of potential moves: " << moves.size() << std::endl;
     for (unsigned int i = 0; i < moves.size(); i++) {
         Board * newboard = board->copy();
-        std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
+        // std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
         newboard->doMove(&moves[i], myside);
         int newscore = newboard->count(myside) - newboard->count(oppside);
         // corner
@@ -93,9 +92,9 @@ Move *Player::getBestMove()   {
                 }
             }
         }
-        std::cerr << "score for this move: " << newscore << std::endl;
-        std::cerr << "number on myside: " << newboard->count(myside) << std::endl;
-        std::cerr << "number on oppside: " << newboard->count(oppside) << std::endl;
+        // std::cerr << "score for this move: " << newscore << std::endl;
+        // std::cerr << "number on myside: " << newboard->count(myside) << std::endl;
+        // std::cerr << "number on oppside: " << newboard->count(oppside) << std::endl;
         if (newscore > score) {
             move_index = i;
             score = newscore;
