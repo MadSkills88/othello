@@ -20,14 +20,15 @@ Player::Player(Side side) {
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
-     board = new Board();
+    board = new Board();
     myside = side;
-     if (myside == BLACK) {
-        oppside = WHITE;
-     }
-     else {
-        oppside = BLACK;
-     }
+    if (myside == BLACK) {
+       oppside = WHITE;
+    }
+    else {
+       oppside = BLACK;
+    }
+    
 }
 
 /*
@@ -55,9 +56,27 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */
     board->doMove(opponentsMove, oppside);
+
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
+    Move best(-1, -1);
+    int score = 0;
+    int move_index;
+    updateMoves(moves);
+    for (unsigned int i = 0; i < moves.size(); i++) {
+	Board * newboard = board->copy();
+	newboard->doMove(&moves[i], myside);
+	int newscore = newboard->count(myside) - newboard->count(oppside);
+	if (newscore > score) {
+	    int move_index = i;
+	    score = newscore;
+	}
+    }
+    best = moves[move_index];
+    board->doMove(&best, myside);
+    return &best;
+
 }
 
 void *Player::updateMoves(std::vector<Move> moves) {
