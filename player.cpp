@@ -28,7 +28,7 @@ Player::Player(Side side) {
     else {
        oppside = BLACK;
     }
-    
+
 }
 
 /*
@@ -56,37 +56,48 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */
     board->doMove(opponentsMove, oppside);
-
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
-    Move best(-1, -1);
-    int score = 0;
+    Move *best;
+    int score = -65;
     int move_index;
-    updateMoves(moves);
+    std::vector<Move> moves = getMoves();
+    std::cerr << "number of potential moves: " << moves.size() << std::endl;
     for (unsigned int i = 0; i < moves.size(); i++) {
-	Board * newboard = board->copy();
-	newboard->doMove(&moves[i], myside);
-	int newscore = newboard->count(myside) - newboard->count(oppside);
-	if (newscore > score) {
-	    int move_index = i;
-	    score = newscore;
-	}
+      	Board * newboard = board->copy();
+        std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
+      	newboard->doMove(&moves[i], myside);
+      	int newscore = newboard->count(myside) - newboard->count(oppside);
+        std::cerr << "score for this move: " << newscore << std::endl;
+        std::cerr << "number on myside: " << newboard->count(myside) << std::endl;
+        std::cerr << "number on oppside: " << newboard->count(oppside) << std::endl;
+      	if (newscore > score) {
+      	    move_index = i;
+      	    score = newscore;
+      	}
     }
-    best = moves[move_index];
-    board->doMove(&best, myside);
-    return &best;
+    std::cerr << "move index: " << move_index << std::endl;
+    best = &moves[move_index];
+    best = new Move(best->getX(), best->getY());
+    std::cerr << best->getX() << ", " << best->getY() << std::endl;
+    board->doMove(best, myside);
+    std::cerr << "hi" << std::endl;
+    return best;
 
 }
 
-void *Player::updateMoves(std::vector<Move> moves) {
-    moves.clear();
+std::vector<Move> Player::getMoves() {
+    // moves.clear();
+    std::vector<Move> moves;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Move move(i, j);
             if (board->checkMove(&move, myside)) {
-            moves.push_back(move);
+                moves.push_back(move);
             }
+            // moves.push_back(move);
         }
     }
+    return moves;
 }
