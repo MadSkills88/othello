@@ -77,7 +77,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
       	    score = newscore;
       	}
     }
-    std::cerr << "move index: " << move_index << std::endl;
+    // std::cerr << "move index: " << move_index << std::endl;
     best = &moves[move_index];
     best = new Move(best->getX(), best->getY());
     std::cerr << best->getX() << ", " << best->getY() << std::endl;
