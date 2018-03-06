@@ -106,6 +106,16 @@ Move *Player::getBestMoveHeuristic()   {
   return best;
 }
 
+Move *Player::getBestMoveMiniMax(Board * board, int rec_time, int rec_depth) {
+    rec_time -= 1;
+    rec_depth += 1;
+    std::vector<Move> moves = getMoves();
+    for (unsigned int i = 0; i < moves.size(); i++) {
+	Board * newboard = board->copy();
+	newboard->doMove(&moves[i], myside);
+    }
+}
+
 std::vector<Move> Player::getMoves() {
     // moves.clear();
     std::vector<Move> moves;
