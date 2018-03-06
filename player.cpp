@@ -15,6 +15,14 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
+    Board myboard = new Board();
+    Side myside = side;
+    if (myside == BLACK) {
+	Side oppside = WHITE;
+    }
+    else {
+	Side oppside = BLACK;
+    }
 
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -48,5 +56,20 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
-    return nullptr;
+    board.doMove(opponentsMove, oppside);
+    if (board.hasMoves == false) {
+        return nullptr;
+    }
+}
+
+void *Player::updateMoves(std::vector<Move> moves) {
+    moves.clear();
+    for (int i = 0; i < 8; i++) {
+	for (int j = 0; j < 8; j++) {
+	    Move move(i, j);
+	    if (checkMove(&move, side)) {
+		moves.push_back(&move);
+	    }
+        }
+    }
 }
