@@ -69,6 +69,21 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
       	newboard->doMove(&moves[i], myside);
       	int newscore = newboard->count(myside) - newboard->count(oppside);
+        // corner
+        if ((moves[i].getX() == 0 || moves[i].getX() == 7) && ((moves[i].getY() == 0 || moves[i].getY() == 7)))   {
+            newscore *= 3;
+        }
+        // adjacent to corners
+        
+        // // std::vector<Move> adjacent_corner = {Move(1, 0), Move(0, 1), Move(1, 1),
+        // //   Move(6, 0), Move(6, 1), Move(7, 1), Move(0, 6), Move(1, 6), Move(1, 7),
+        // //   Move(6, 7), Move(6, 6), Move(7, 6)};
+        // std::vector<Move> adjacent_corner = {Move(1, 0), Move(0, 1), Move(1, 1)};
+        // for (unsigned int j = 0; j < adjacent_corner.size(); ++j)   {
+        //     if (moves[i].getX() == adjacent_corner[j].getX() && moves[i].getY() == adjacent_corner[j].getY())   {
+        //         newscore *= -3;
+        //     }
+        // }
         std::cerr << "score for this move: " << newscore << std::endl;
         std::cerr << "number on myside: " << newboard->count(myside) << std::endl;
         std::cerr << "number on oppside: " << newboard->count(oppside) << std::endl;
