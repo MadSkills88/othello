@@ -9,18 +9,18 @@ int main(int argc, char *argv[]) {
 
     // Create board with example state. You do not necessarily need to use
     // this, but it's provided for convenience.
-    char boardData[64] = {
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', 'b', ' ', ' ', ' ', ' ', ' ', ' ',
-        'b', 'w', 'b', 'b', 'b', 'b', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-    };
-    Board *board = new Board();
-    board->setBoard(boardData);
+    // char boardData[64] = {
+    //     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    //     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    //     ' ', 'b', ' ', ' ', ' ', ' ', ' ', ' ',
+    //     'b', 'w', 'b', 'b', 'b', 'b', ' ', ' ',
+    //     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    //     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    //     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    //     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+    // };
+    // Board *board = new Board();
+    // board->setBoard(boardData);
 
     // Initialize player as the white player, and set testing_minimax flag.
     Player *player = new Player(WHITE);
@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
     // Get player's move and check if it's right.
     Move *move = player->doMove(nullptr, 0);
 
-    if (move != nullptr && move->x == 1 && move->y == 1) {
-        std::cout << "Correct move: (1, 1)" << std::endl;;
+    if (move != nullptr && move->x == 2 && move->y == 4) {
+        std::cout << "Correct move: (2, 4)" << std::endl;;
     } else {
         std::cout << "Wrong move: got ";
         if (move == nullptr) {
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         } else {
             std::cout << "(" << move->x << ", " << move->y << ")";
         }
-        std::cout << ", expected (1, 1)" << std::endl;
+        std::cout << ", expected (2, 4)" << std::endl;
     }
 
     return 0;

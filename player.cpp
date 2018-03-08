@@ -6,6 +6,7 @@
 // Zach said I could put "lol". Lol.
 
 #include "player.hpp"
+#include <climits>
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -50,6 +51,8 @@ Player::~Player() {
  * The move returned must be legal; if there are no valid moves for your side,
  * return nullptr.
  */
+
+
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
     /*
      * TODO: Implement how moves your AI should play here. You should first
@@ -59,7 +62,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
-    Move *best = MiniMax(board, 3);
+    Move *best = getBestMoveMiniMax(board, 3);
+    // Move *best = getBestMoveHeuristic(board, myside);
     // std::cerr << best->getX() << ", " << best->getY() << std::endl;
     board->doMove(best, myside);
     return best;
@@ -68,7 +72,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
 Move *Player::getBestMoveHeuristic(Board * myboard, Side side)   {
     Move *best;
-    int score = -65*3;
+    // int score = -65*3;
+    int score = INT_MIN;
     int move_index;
     std::vector<Move> moves = getMoves(myboard, side);
     // std::cerr << "number of potential moves: " << moves.size() << std::endl;
@@ -105,57 +110,82 @@ Move *Player::getBestMoveHeuristic(Board * myboard, Side side)   {
   best = new Move(best->getX(), best->getY());
   return best;
 }
-Move *Player::MiniMax(Board * myboard, int depth) {
+Move *Player::getBestMoveMiniMax(Board * myboard, int depth) {
     std::vector<Move> moves = getMoves(myboard, myside);
-    int bestscore = -65*3;
+    int bestscore = INT_MIN;
     Move * best;
     int move_index;
-    depth -= 1;
-    for (unsigned int i = 0; i < moves.size(); i++) {
-	Board * newboard = myboard->copy();
-        newboard->doMove(&moves[i], myside);
-	int score = getBestMoveMiniMax(newboard, depth, false);
-        if (score > bestscore) {
-	    bestscore = score;
-	    move_index = i;
-	}
+    // depth -= 1;
+    // bool turn = false;
+    // if (depth % 2 == 0)   {
+    //     turn = true;
+    // }
+    bool turn = true;
+    if (depth % 2 == 0)   {
+        turn = false;
+    }
+    if (moves.size() == 1)    {
+        std::cerr << "wew lad" << std::endl;
+        move_index = 0;
+    }
+    else    {
+        for (unsigned int i = 0; i < moves.size(); i++) {
+            std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
+            Board * newboard = myboard->copy();
+            newboard->doMove(&moves[i], myside);
+            std::cerr << "move successfully simulated" << std::endl;
+            int score = getMiniMaxScore(newboard, depth, turn);
+            std::cerr << "score: " << score << std::endl;
+            if (score > bestscore) {
+                bestscore = score;
+                move_index = i;
+            }
+        }
     }
     best = &moves[move_index];
     best = new Move(best->getX(), best->getY());
+    std::cerr << "best move: " << best->getX() << ", " << best->getY() << std::endl;
     return best;
 }
-int Player::getBestMoveMiniMax(Board * myboard, int depth, bool turn) {
+int Player::getMiniMaxScore(Board * myboard, int depth, bool turn) {
     depth -= 1;
     Move *best;
     if (depth == 0) {
-	if (turn == true) {
-	    best = getBestMoveHeuristic(myboard, myside);
-	    Board * newboard = myboard->copy();
-	    newboard->doMove(best, myside);
-	    return newboard->count(myside) - newboard->count(oppside);
-	}
-	else {
-	    best = getBestMoveHeuristic(myboard, oppside);
-	    Board * newboard = myboard->copy();
-	    newboard->doMove(best, oppside);
+        std::cerr << "depth 0" << std::endl;
+      	if (turn == true) {
+      	    best = getBestMoveHeuristic(myboard, myside);
+      	    Board * newboard = myboard->copy();
+      	    newboard->doMove(best, myside);
+      	    return newboard->count(myside) - newboard->count(oppside);
+      	}
+        else {
+            best = getBestMoveHeuristic(myboard, oppside);
+            Board * newboard = myboard->copy();
+            newboard->doMove(best, oppside);
             return newboard->count(myside) - newboard->count(oppside);
-	}
+      	}
     }
+    // if it's myside's turn
     if (turn == true) {
-	std::vector<Move> moves = getMoves(myboard, myside);
-	for (unsigned int i = 0; i < moves.size(); i++) {
-	    Board * newboard = myboard->copy();
-	    newboard->doMove(&moves[i], myside);
-	    return getBestMoveMiniMax(newboard, depth, false); 
+        std::cerr << "myside's turn" << std::endl;
+        std::cerr << "depth: " << depth << std::endl;
+        std::vector<Move> moves = getMoves(myboard, myside);
+        for (unsigned int i = 0; i < moves.size(); i++) {
+            Board * newboard = myboard->copy();
+            newboard->doMove(&moves[i], myside);
+            return getMiniMaxScore(newboard, depth, false);
         }
     }
+    // if it's oppside's turn
     else {
-	std::vector<Move> moves = getMoves(myboard, oppside);
-	for (unsigned int i = 0; i < moves.size(); i++) {
-	    Board * newboard = myboard->copy();
-	    newboard->doMove(&moves[i], oppside);
-	    return getBestMoveMiniMax(newboard, depth, true);
-	}
+        std::cerr << "oppside's turn" << std::endl;
+        std::cerr << "depth: " << depth << std::endl;
+        std::vector<Move> moves = getMoves(myboard, oppside);
+        for (unsigned int i = 0; i < moves.size(); i++) {
+            Board * newboard = myboard->copy();
+            newboard->doMove(&moves[i], oppside);
+            return getMiniMaxScore(newboard, depth, true);
+        }
     }
 }
 
