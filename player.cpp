@@ -59,7 +59,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
-    Move *best = getBestMoveHeuristic();
+    Move *best = getBestMoveMiniMax();
     // std::cerr << best->getX() << ", " << best->getY() << std::endl;
     board->doMove(best, myside);
     return best;
@@ -70,7 +70,7 @@ Move *Player::getBestMoveHeuristic()   {
     Move *best;
     int score = -65*3;
     int move_index;
-    std::vector<Move> moves = getMoves();
+    std::vector<Move> moves = getMoves(board);
     // std::cerr << "number of potential moves: " << moves.size() << std::endl;
     for (unsigned int i = 0; i < moves.size(); i++) {
         Board * newboard = board->copy();
@@ -109,14 +109,33 @@ Move *Player::getBestMoveHeuristic()   {
 Move *Player::getBestMoveMiniMax(Board * board, int rec_time, int rec_depth) {
     rec_time -= 1;
     rec_depth += 1;
-    std::vector<Move> moves = getMoves();
-    for (unsigned int i = 0; i < moves.size(); i++) {
-	Board * newboard = board->copy();
-	newboard->doMove(&moves[i], myside);
+    if (rec_depth == 0)   {
+        return getBestMoveHeuristic();
     }
+    Move *best;
+    int score = -65*3;
+    int move_index;
+    std::vector<Move> moves = getMoves(board);
+
+    // std::cerr << "number of potential moves: " << moves.size() << std::endl;
+    for (unsigned int i = 0; i < moves.size(); i++) {
+        Board * newboard = board->copy();
+        // std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
+        newboard->doMove(&moves[i], myside);
+        int newscore = newboard->count(myside) - newboard->count(oppside);
+
+        if (newscore > score) {
+            move_index = i;
+            score = newscore;
+        }
+    }
+    // std::cerr << "move index: " << move_index << std::endl;
+    best = &moves[move_index];
+    best = new Move(best->getX(), best->getY());
+    return best;
 }
 
-std::vector<Move> Player::getMoves() {
+std::vector<Move> Player::getMoves(Board * board) {
     // moves.clear();
     std::vector<Move> moves;
     for (int i = 0; i < 8; i++) {
