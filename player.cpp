@@ -59,23 +59,23 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
-    Move *best = getBestMoveMiniMax();
+    Move *best = MiniMax(board, 3);
     // std::cerr << best->getX() << ", " << best->getY() << std::endl;
     board->doMove(best, myside);
     return best;
 
 }
 
-Move *Player::getBestMoveHeuristic()   {
+Move *Player::getBestMoveHeuristic(Board * myboard, Side side)   {
     Move *best;
     int score = -65*3;
     int move_index;
-    std::vector<Move> moves = getMoves(board);
+    std::vector<Move> moves = getMoves(myboard, side);
     // std::cerr << "number of potential moves: " << moves.size() << std::endl;
     for (unsigned int i = 0; i < moves.size(); i++) {
-        Board * newboard = board->copy();
+        Board * newboard = myboard->copy();
         // std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
-        newboard->doMove(&moves[i], myside);
+        newboard->doMove(&moves[i], side);
         int newscore = newboard->count(myside) - newboard->count(oppside);
         // corner
         if ((moves[i].getX() == 0 || moves[i].getX() == 7) && ((moves[i].getY() == 0 || moves[i].getY() == 7)))   {
@@ -105,43 +105,67 @@ Move *Player::getBestMoveHeuristic()   {
   best = new Move(best->getX(), best->getY());
   return best;
 }
-
-Move *Player::getBestMoveMiniMax(Board * board, int rec_time, int rec_depth) {
-    rec_time -= 1;
-    rec_depth += 1;
-    if (rec_depth == 0)   {
-        return getBestMoveHeuristic();
-    }
-    Move *best;
-    int score = -65*3;
+Move *Player::MiniMax(Board * myboard, int depth) {
+    std::vector<Move> moves = getMoves(myboard, myside);
+    int bestscore = -65*3;
+    Move * best;
     int move_index;
-    std::vector<Move> moves = getMoves(board);
-
-    // std::cerr << "number of potential moves: " << moves.size() << std::endl;
+    depth -= 1;
     for (unsigned int i = 0; i < moves.size(); i++) {
-        Board * newboard = board->copy();
-        // std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
+	Board * newboard = myboard->copy();
         newboard->doMove(&moves[i], myside);
-        int newscore = newboard->count(myside) - newboard->count(oppside);
-
-        if (newscore > score) {
-            move_index = i;
-            score = newscore;
-        }
+	int score = getBestMoveMiniMax(newboard, depth, false);
+        if (score > bestscore) {
+	    bestscore = score;
+	    move_index = i;
+	}
     }
-    // std::cerr << "move index: " << move_index << std::endl;
     best = &moves[move_index];
     best = new Move(best->getX(), best->getY());
     return best;
 }
+int Player::getBestMoveMiniMax(Board * myboard, int depth, bool turn) {
+    depth -= 1;
+    Move *best;
+    if (depth == 0) {
+	if (turn == true) {
+	    best = getBestMoveHeuristic(myboard, myside);
+	    Board * newboard = myboard->copy();
+	    newboard->doMove(best, myside);
+	    return newboard->count(myside) - newboard->count(oppside);
+	}
+	else {
+	    best = getBestMoveHeuristic(myboard, oppside);
+	    Board * newboard = myboard->copy();
+	    newboard->doMove(best, oppside);
+            return newboard->count(myside) - newboard->count(oppside);
+	}
+    }
+    if (turn == true) {
+	std::vector<Move> moves = getMoves(myboard, myside);
+	for (unsigned int i = 0; i < moves.size(); i++) {
+	    Board * newboard = myboard->copy();
+	    newboard->doMove(&moves[i], myside);
+	    return getBestMoveMiniMax(newboard, depth, false); 
+        }
+    }
+    else {
+	std::vector<Move> moves = getMoves(myboard, oppside);
+	for (unsigned int i = 0; i < moves.size(); i++) {
+	    Board * newboard = myboard->copy();
+	    newboard->doMove(&moves[i], oppside);
+	    return getBestMoveMiniMax(newboard, depth, true);
+	}
+    }
+}
 
-std::vector<Move> Player::getMoves(Board * board) {
+std::vector<Move> Player::getMoves(Board * myboard, Side side) {
     // moves.clear();
     std::vector<Move> moves;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Move move(i, j);
-            if (board->checkMove(&move, myside)) {
+            if (myboard->checkMove(&move, side)) {
                 moves.push_back(move);
             }
             // moves.push_back(move);

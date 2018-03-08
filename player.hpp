@@ -16,9 +16,10 @@ public:
     Side oppside;
     Side myside;
     Move *doMove(Move *opponentsMove, int msLeft);
-    Move *getBestMoveHeuristic();
-    Move *getBestMoveMiniMax(Board * board, int rec_time, int rec_depth);
-    vector<Move> getMoves(Board * board);
+    Move *getBestMoveHeuristic(Board * myboard, Side side);
+    Move *MiniMax(Board * myboard, int depth);
+    int getBestMoveMiniMax(Board * board, int depth, bool turn);
+    vector<Move> getMoves(Board * board, Side side);
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
 };
