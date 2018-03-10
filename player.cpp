@@ -62,7 +62,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (!board->hasMoves(myside)) {
         return nullptr;
     }
-    Move *best = getBestMoveMiniMax(board, 2);
+    Move *best = getBestMoveMiniMax(board, 1);
     // Move *best = getBestMoveHeuristic(board, myside);
     // std::cerr << best->getX() << ", " << best->getY() << std::endl;
     board->doMove(best, myside);
@@ -128,12 +128,15 @@ Move *Player::getBestMoveMiniMax(Board * myboard, int depth) {
 //        move_index = 0;
 //    }
 //    else    {
+	if (!myboard->hasMoves(myside)) {
+	    return nullptr;
+	}
         for (unsigned int i = 0; i < moves.size(); i++) {
             std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
             Board * newboard = myboard->copy();
             newboard->doMove(&moves[i], myside);
             std::cerr << "move successfully simulated" << std::endl;
-            int score = getMiniMaxScore(newboard, depth, false);
+            int score = getMiniMaxScore(newboard, depth, turn);
             std::cerr << "score: " << score << std::endl;
             if (score > bestscore) {
                 bestscore = score;
@@ -152,17 +155,27 @@ int Player::getMiniMaxScore(Board * myboard, int depth, bool turn) {
     if (depth == 0) {
         std::cerr << "depth 0" << std::endl;
       	if (turn == true) {
-      	    best = getBestMoveHeuristic(myboard, myside);
-      	    Board * newboard = myboard->copy();
-      	    newboard->doMove(best, myside);
-      	    return newboard->count(myside) - newboard->count(oppside);
-      	}
+	    if (myboard->hasMoves(myside)) {
+      	        best = getBestMoveHeuristic(myboard, myside);
+      	        Board * newboard = myboard->copy();
+      	        newboard->doMove(best, myside);
+      	        return newboard->count(myside) - newboard->count(oppside);
+      	    }
+	    else {
+	        return INT_MIN;
+	    }
+	}
         else {
-            best = getBestMoveHeuristic(myboard, oppside);
-            Board * newboard = myboard->copy();
-            newboard->doMove(best, oppside);
-            return newboard->count(myside) - newboard->count(oppside);
-      	}
+	    if (myboard->hasMoves(oppside)) {
+                best = getBestMoveHeuristic(myboard, oppside);
+                Board * newboard = myboard->copy();
+                newboard->doMove(best, oppside);
+                return newboard->count(myside) - newboard->count(oppside);
+      	    }
+	    else {
+		return INT_MAX;
+	    }
+	}
     }
     // if it's myside's turn
     if (turn == true) {
