@@ -65,7 +65,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
     // To test Heuristic set: Move *best = getBestMoveHeuristic(Board, myside);
     // To test MiniMax set: Move *best = getBestMoveMiniMax(Board, 3)
-    Move *best = getBestMoveMiniMax(board, 2);
+    Move *best = getBestMoveMiniMax(board, 4);
     // Move *best = getBestMoveHeuristic(board, myside);
     // std::cerr << best->getX() << ", " << best->getY() << std::endl;
     board->doMove(best, myside);
@@ -220,13 +220,18 @@ int Player::getMiniMaxScore(Board * myboard, int depth, bool turn) {
     if (turn == true) {
         std::cerr << "myside's turn" << std::endl;
         std::cerr << "depth: " << depth << std::endl;
+	int score = INT_MIN;
 	if (myboard->hasMoves(myside)) {
             std::vector<Move*> moves = getMoves(myboard, myside);
             for (unsigned int i = 0; i < moves.size(); i++) {
                 Board * newboard = myboard->copy();
                 newboard->doMove(moves[i], myside);
-                return getMiniMaxScore(newboard, depth, false);
+                int newscore = getMiniMaxScore(newboard, depth, false);
+		if (newscore > score) {
+		    score = newscore;
+		}
             }
+	    return score;
 	}
 	else {
 	    return -1000;
@@ -236,13 +241,18 @@ int Player::getMiniMaxScore(Board * myboard, int depth, bool turn) {
     else {
         std::cerr << "oppside's turn" << std::endl;
         std::cerr << "depth: " << depth << std::endl;
+	int score = INT_MAX;
 	if (myboard->hasMoves(oppside)) {
             std::vector<Move*> moves = getMoves(myboard, oppside);
             for (unsigned int i = 0; i < moves.size(); i++) {
                 Board * newboard = myboard->copy();
                 newboard->doMove(moves[i], oppside);
-                return getMiniMaxScore(newboard, depth, true);
+                int newscore = getMiniMaxScore(newboard, depth, true);
+		if (newscore < score) {
+		    score = newscore;
+		}
             }
+	    return score;
         }
 	else {
 	    return 1000;
