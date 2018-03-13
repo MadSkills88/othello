@@ -108,7 +108,7 @@ int Player::getBestScoreHeuristic(Board * myboard, Move * move, Side side) {
     // corner
     if ((move->getX() == 0 || move->getX() == 7) && ((move->getY() == 0 || move->getY() == 7)))   {
         newscore += 15;
-        newscore += 4 * (abs(newscore));
+        newscore += 6 * (abs(newscore));
     }
     // adjacent to corners
     std::vector<Move> adjacent_corner = {Move(1, 0), Move(0, 1), Move(6, 0), Move(7, 1), 
@@ -125,12 +125,13 @@ int Player::getBestScoreHeuristic(Board * myboard, Move * move, Side side) {
     }
     for (unsigned int j = 0; j < kat_corner.size(); j++) {
         if (move->getX() == kat_corner[j].getX() && move->getY() == kat_corner[j].getY()) {
+            newscore -= 15;
             newscore -= 3 * (abs(newscore));
         }
     }
     for (unsigned int j = 0; j < sides.size(); j++) {
         if (move->getX() == sides[j].getX() && move->getY() == sides[j].getY()) {
-            newscore += 5;
+            newscore += 10;
             newscore += sidestability(newboard, side, move);
         //    if ()
             newscore += 2 * (abs(newscore));
@@ -299,7 +300,7 @@ int Player::mobilitycalc(Board * myboard, Side side) {
         mymoves = getMoves(myboard, oppside);
         oppmoves = getMoves(myboard, myside);
     }
-    return 3 * (mymoves.size() - oppmoves.size());
+    return 7 * (mymoves.size() - oppmoves.size());
 }
 
 int Player::sidestability(Board * myboard, Side side, Move * move) {
@@ -310,7 +311,7 @@ int Player::sidestability(Board * myboard, Side side, Move * move) {
                     return 0;
                 }
             }
-            return 15;
+            return 30;
         }
         if (move->getY() == 7) {
             for (unsigned int i = 0; i < 8; i++) {
@@ -318,7 +319,7 @@ int Player::sidestability(Board * myboard, Side side, Move * move) {
                     return 0;
                 }
             }
-            return 15;
+            return 30;
         }
     }
     if (move->getY() > 0 && move->getY() < 7) {
@@ -328,7 +329,7 @@ int Player::sidestability(Board * myboard, Side side, Move * move) {
                     return 0;
                 }
             }
-            return 15;
+            return 30;
         }
         if (move->getX() == 7) {
             for (unsigned int i = 0; i < 8; i++) {
@@ -336,7 +337,7 @@ int Player::sidestability(Board * myboard, Side side, Move * move) {
                     return 0;
                 }
             }
-            return 15;
+            return 30;
         }
     }
 
