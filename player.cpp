@@ -239,9 +239,9 @@ int Player::getMiniMaxScore(Board * myboard, int depth, bool turn) {
                 Board * newboard = myboard->copy();
                 newboard->doMove(moves[i], myside);
                 int newscore = getMiniMaxScore(newboard, depth, false);
-		if (newscore > score) {
-		    score = newscore;
-		}
+		        if (newscore > score) {
+		          score = newscore;
+		        }
             }
 	    return score;
 	}
