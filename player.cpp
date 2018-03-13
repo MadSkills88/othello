@@ -98,10 +98,17 @@ int Player::getBestScoreHeuristic(Board * myboard, Move * move, Side side) {
     Board * newboard = myboard->copy();
     // std::cerr << "potential move: " << moves[i].getX() << ", " << moves[i].getY() << std::endl;
     newboard->doMove(move, side);
-    int newscore = newboard->count(myside) - newboard->count(oppside);
+    int newscore;
+    if (side == myside) {
+        newscore = newboard->count(myside) - newboard->count(oppside);
+    }
+    else {
+        newscore = newboard->count(oppside) - newboard->count(myside);
+    }
     // corner
     if ((move->getX() == 0 || move->getX() == 7) && ((move->getY() == 0 || move->getY() == 7)))   {
-        newscore += 3 * (abs(newscore));
+        newscore += 15;
+        newscore += 4 * (abs(newscore));
     }
     // adjacent to corners
     std::vector<Move> adjacent_corner = {Move(1, 0), Move(0, 1), Move(6, 0), Move(7, 1), 
@@ -120,12 +127,16 @@ int Player::getBestScoreHeuristic(Board * myboard, Move * move, Side side) {
         if (move->getX() == kat_corner[j].getX() && move->getY() == kat_corner[j].getY()) {
             newscore -= 3 * (abs(newscore));
         }
+    }
     for (unsigned int j = 0; j < sides.size(); j++) {
         if (move->getX() == sides[j].getX() && move->getY() == sides[j].getY()) {
+            newscore += 5;
+            newscore += sidestability(newboard, side, move);
+        //    if ()
             newscore += 2 * (abs(newscore));
         }
     }
-    }
+    newscore += mobilitycalc(newboard, side);
     return newscore;
     // std::cerr << "score for this move: " << newscore << std::endl;
     // std::cerr << "number on myside: " << newboard->count(myside) << std::endl;
@@ -205,6 +216,7 @@ int Player::getMiniMaxScore(Board * myboard, int depth, bool turn) {
                     Board * newboard = myboard->copy();
                     newboard->doMove(best, oppside);
                     int newscore = getBestScoreHeuristic(myboard, moves[i], oppside);
+		    newscore *= -1;
                     if (newscore < score) {
                         score = newscore;
                     }
@@ -274,4 +286,58 @@ std::vector<Move*> Player::getMoves(Board * myboard, Side side) {
         }
     }
     return moves;
+}
+
+int Player::mobilitycalc(Board * myboard, Side side) {
+    std::vector<Move*> mymoves;
+    std::vector<Move*> oppmoves;
+    if (side == myside) {
+        mymoves = getMoves(myboard, myside);
+        oppmoves = getMoves(myboard, oppside);
+    }
+    else {
+        mymoves = getMoves(myboard, oppside);
+        oppmoves = getMoves(myboard, myside);
+    }
+    return 3 * (mymoves.size() - oppmoves.size());
+}
+
+int Player::sidestability(Board * myboard, Side side, Move * move) {
+    if (move->getX() > 0 && move->getX() < 7) {
+        if (move->getY() == 0) {
+            for (unsigned int i = 0; i < 8; i++) {
+                if (myboard->occupied(i, 0) == false) {
+                    return 0;
+                }
+            }
+            return 15;
+        }
+        if (move->getY() == 7) {
+            for (unsigned int i = 0; i < 8; i++) {
+                if(myboard->occupied(i, 7) == false) {
+                    return 0;
+                }
+            }
+            return 15;
+        }
+    }
+    if (move->getY() > 0 && move->getY() < 7) {
+        if (move->getX() == 0) {
+            for (unsigned int i = 0; i < 8; i++) {
+                if (myboard->occupied(0, i) == false) {
+                    return 0;
+                }
+            }
+            return 15;
+        }
+        if (move->getX() == 7) {
+            for (unsigned int i = 0; i < 8; i++) {
+                if(myboard->occupied(7, i) == false) {
+                    return 0;
+                }
+            }
+            return 15;
+        }
+    }
+
 }
